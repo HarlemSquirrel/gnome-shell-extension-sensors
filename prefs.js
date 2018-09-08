@@ -164,7 +164,7 @@ const SensorsPrefsWidget = new GObject.Class({
       let sensors_output = GLib.spawn_command_line_sync(sensors_cmd.join(' '));
       if(sensors_output[0])
       {
-        let output = sensors_output[1].toString();
+        let output = Convenience.byteArrayToString(sensors_output[1]);
         let tempInfo = Utilities.parseSensorsOutput(output,Utilities.parseSensorsTemperatureLine);
         tempInfo = tempInfo.filter(Utilities.filterTemperature);
         this._appendMultipleItems(tempInfo);

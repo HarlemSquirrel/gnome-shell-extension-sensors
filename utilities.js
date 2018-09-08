@@ -3,6 +3,7 @@ const GObject = imports.gi.GObject;
 const Gio = imports.gi.Gio;
 const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Convenience = Me.imports.convenience;
 const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
 
@@ -41,9 +42,9 @@ function detectHDDTemp() {
   let pid = undefined;
 
   if(systemctl) {
-    let activeState = GLib.spawn_command_line_sync(systemctl + " show hddtemp.service -p ActiveState")[1].toString().trim();
+    let activeState = Convenience.byteArrayToString(GLib.spawn_command_line_sync(systemctl + " show hddtemp.service -p ActiveState")[1]).trim();
     if(activeState == "ActiveState=active") {
-      let output = GLib.spawn_command_line_sync(systemctl + " show hddtemp.service -p MainPID")[1].toString().trim();
+      let output = Convenience.byteArrayToString(GLib.spawn_command_line_sync(systemctl + " show hddtemp.service -p MainPID")[1]).trim();
 
       if(output.length && output.split("=").length == 2) {
         pid = Number(output.split("=")[1].trim());
@@ -53,7 +54,7 @@ function detectHDDTemp() {
 
   // systemd isn't used on this system, try sysvinit instead
   if(!pid && pidof) {
-    let output = GLib.spawn_command_line_sync("pidof hddtemp")[1].toString().trim();
+    let output = Convenience.byteArrayToString(GLib.spawn_command_line_sync("pidof hddtemp")[1]).trim();
 
     if(output.length) {
       pid = Number(output.trim());
@@ -230,7 +231,7 @@ const Future = new Lang.Class({
     this._dataStdout.fill_async(-1, GLib.PRIORITY_DEFAULT, null, Lang.bind(this, function(stream, result) {
       if (stream.fill_finish(result) == 0){
         try{
-          this._callback(stream.peek_buffer().toString());
+          this._callback(Convenience.byteArrayToString(stream.peek_buffer()));
         }catch(e){
           global.log(e.toString());
         }

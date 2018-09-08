@@ -85,6 +85,7 @@ function parseSensorsOutput(txt,parser) {
   for(let i = 0; i < sensors_output.length; i++){
     // ignore chipset driver name and 'Adapter:' line for now
     i += 2;
+    if (i > sensors_output.length) break;
     // get every feature of the chip
     while(sensors_output[i]){
        // if it is not a continutation of a feature line

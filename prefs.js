@@ -149,9 +149,9 @@ const SensorsPrefsWidget = new GObject.Class({
   },
 
   _appendMultipleItems: function(sensorInfo) {
-    for each (let sensor in sensorInfo) {
+    sensorInfo.forEach((sensor)=> {
       this._model.set(this._model.append(), [modelColumn.label], [sensor['label']]);
-    }
+    });
   },
 
   _appendSeparator: function() {

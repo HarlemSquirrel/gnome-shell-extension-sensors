@@ -204,7 +204,7 @@ const SensorsPrefsWidget = new GObject.Class({
 
   _getActiveSensorIter: function() {
     /* Get the first iter in the list */
-    [success, iter] = this._model.get_iter_first();
+    let [success, iter] = this._model.get_iter_first();
     let sensorLabel = this._model.get_value(iter, 0);
 
     while (success) {

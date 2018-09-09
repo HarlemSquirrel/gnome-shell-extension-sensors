@@ -3,6 +3,7 @@ const GObject = imports.gi.GObject;
 const Gio = imports.gi.Gio;
 const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Convenience = Me.imports.convenience;
 const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
 
@@ -41,9 +42,9 @@ function detectHDDTemp() {
   let pid = undefined;
 
   if(systemctl) {
-    let activeState = GLib.spawn_command_line_sync(systemctl + " show hddtemp.service -p ActiveState")[1].toString().trim();
+    let activeState = Convenience.byteArrayToString(GLib.spawn_command_line_sync(systemctl + " show hddtemp.service -p ActiveState")[1]).trim();
     if(activeState == "ActiveState=active") {
-      let output = GLib.spawn_command_line_sync(systemctl + " show hddtemp.service -p MainPID")[1].toString().trim();
+      let output = Convenience.byteArrayToString(GLib.spawn_command_line_sync(systemctl + " show hddtemp.service -p MainPID")[1]).trim();
 
       if(output.length && output.split("=").length == 2) {
         pid = Number(output.split("=")[1].trim());
@@ -53,7 +54,7 @@ function detectHDDTemp() {
 
   // systemd isn't used on this system, try sysvinit instead
   if(!pid && pidof) {
-    let output = GLib.spawn_command_line_sync("pidof hddtemp")[1].toString().trim();
+    let output = Convenience.byteArrayToString(GLib.spawn_command_line_sync("pidof hddtemp")[1]).trim();
 
     if(output.length) {
       pid = Number(output.trim());
@@ -84,6 +85,7 @@ function parseSensorsOutput(txt,parser) {
   for(let i = 0; i < sensors_output.length; i++){
     // ignore chipset driver name and 'Adapter:' line for now
     i += 2;
+    if (i > sensors_output.length) break;
     // get every feature of the chip
     while(sensors_output[i]){
        // if it is not a continutation of a feature line
@@ -175,8 +177,7 @@ function parseHddTempOutput(txt, sep) {
   hddtemp_output = hddtemp_output.filter(function(e){ return e; });
 
   let sensors = new Array();
-  for each(let line in hddtemp_output)
-  {
+  hddtemp_output.forEach((line)=> {
     let sensor = new Array();
     let fields = line.split(sep).filter(function(e){ return e; });
     sensor['label'] = _("Drive %s").format(fields[0].split('/').pop());
@@ -184,7 +185,7 @@ function parseHddTempOutput(txt, sep) {
     //push only if the temp is a Number
     if (!isNaN(sensor['temp']))
       sensors.push(sensor);
-  }
+  });
   return sensors;
 }
 
@@ -200,7 +201,7 @@ function filterVoltage(voltageInfo) {
   return true;
 }
 
-const Future = new Lang.Class({
+var Future = new Lang.Class({
   Name: 'Future',
 
 	_init: function(argv, callback) {
@@ -231,7 +232,7 @@ const Future = new Lang.Class({
     this._dataStdout.fill_async(-1, GLib.PRIORITY_DEFAULT, null, Lang.bind(this, function(stream, result) {
       if (stream.fill_finish(result) == 0){
         try{
-          this._callback(stream.peek_buffer().toString());
+          this._callback(Convenience.byteArrayToString(stream.peek_buffer()));
         }catch(e){
           global.log(e.toString());
         }
@@ -267,7 +268,7 @@ function debug(str){
 }
 
 // routines for handling of udisks2
-const UDisks = {
+var UDisks = {
   // creates a list of sensor objects from the list of proxies given
   create_list_from_proxies: function(proxies) {
     return proxies.filter(function(proxy) {

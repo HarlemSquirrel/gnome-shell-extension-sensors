@@ -7,6 +7,8 @@ const Gtk = imports.gi.Gtk;
 const Config = imports.misc.config;
 const ExtensionUtils = imports.misc.extensionUtils;
 
+const ByteArray = imports.byteArray;
+
 /**
  * initTranslations:
  * @domain: (optional): the gettext domain to use
@@ -79,4 +81,30 @@ function getSettings(schema) {
             + extension.metadata.uuid + '. Please check your installation.');
 
   return new Gio.Settings({ settings_schema: schemaObj });
+}
+
+/**
+ * byteArrayToString:
+ * @byte_array: the byte_array to decode a UTF-8 string from
+ *
+ * This is a compatibility wrapper. Since gjs 1.54 the custom ByteArray has
+ * been removed and replaced by the standardized Uint8Array type.
+ * The uint8_array.to_String() will not return the amused UTF-8 string in gjs
+ * version > 1.54 but a string with the decimal digits of each byte joined with
+ * commas.
+ *
+ * The recommended way to get a UTF-8 decoded string from a Uint8Array is to
+ * use the static function ByteArray.toString(byte_array) which is available
+ * with gjs 1.54.
+ *
+ * To remain compatible with gjs < 1.54 this helper function checks for the
+ * instance type of the byte_array and calls the correct function to decode the
+ * UTF-8 string.
+ */
+function byteArrayToString (byte_array) {
+    if (byte_array instanceof ByteArray.ByteArray) {
+        return byte_array.toString();
+    } else if (byte_array instanceof Uint8Array) {
+        return ByteArray.toString(byte_array);
+    }
 }

@@ -153,7 +153,7 @@ const SensorsMenuButton = new Lang.Class({
       let sum = 0; //sum
       let max = 0; //max temp
       let allCoreTemps = '';
-      for each (let temp in tempInfo){
+      tempInfo.forEach((temp)=> {
         sum += temp.temp;
         if (temp.temp > max)
           max = temp.temp;
@@ -167,7 +167,7 @@ const SensorsMenuButton = new Lang.Class({
             }
             allCoreTemps += _("%s ").format(this._formatTemp(temp.temp));
         }
-      }
+      });
 
       if (tempInfo.length > 0){
         sensorsList.push(new PopupMenu.PopupSeparatorMenuItem());
@@ -181,19 +181,19 @@ const SensorsMenuButton = new Lang.Class({
           sensorsList.push(new PopupMenu.PopupSeparatorMenuItem());
       }
 
-      for each (let fan in fanInfo){
+      fanInfo.forEach((fan)=> {
         sensorsList.push(new SensorsItem('fan', fan.label, _("%drpm").format(fan['rpm'])));
-      }
+      });
       if (fanInfo.length > 0 && voltageInfo.length > 0){
         sensorsList.push(new PopupMenu.PopupSeparatorMenuItem());
       }
-      for each (let voltage in voltageInfo){
+      voltageInfo.forEach((voltage)=> {
         sensorsList.push(new SensorsItem('voltage', voltage.label, _("%s%.2fV").format(((voltage['volt'] >= 0) ? '+' : '-'), voltage['volt'])));
-      }
+      });
 
       this.statusLabel.set_text(_("N/A")); // Just in case
 
-      for each (let item in sensorsList) {
+      sensorsList.forEach((item)=> {
         if(item instanceof SensorsItem) {
           if (settings.get_string('main-sensor') == item.getLabel()) {
 
@@ -203,7 +203,7 @@ const SensorsMenuButton = new Lang.Class({
           }
         }
         section.addMenuItem(item);
-      }
+      });
 
       // separator
       section.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());

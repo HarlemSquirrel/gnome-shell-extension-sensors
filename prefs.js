@@ -121,7 +121,7 @@ const SensorsPrefsWidget = new GObject.Class({
     // ComboBox to select which sensor to show in panel
     this._sensorSelector = new Gtk.ComboBox({ model: this._model });
     this._sensorSelector.set_active_iter(this._getActiveSensorIter());
-    this._sensorSelector.set_row_separator_func(Lang.bind(this, this._comboBoxSeparator), null, null);
+    this._sensorSelector.set_row_separator_func(Lang.bind(this, this._comboBoxSeparator));
 
     let renderer = new Gtk.CellRendererText();
     this._sensorSelector.pack_start(renderer, true);

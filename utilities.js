@@ -201,7 +201,7 @@ function filterVoltage(voltageInfo) {
   return true;
 }
 
-const Future = new Lang.Class({
+var Future = new Lang.Class({
   Name: 'Future',
 
 	_init: function(argv, callback) {
@@ -268,7 +268,7 @@ function debug(str){
 }
 
 // routines for handling of udisks2
-const UDisks = {
+var UDisks = {
   // creates a list of sensor objects from the list of proxies given
   create_list_from_proxies: function(proxies) {
     return proxies.filter(function(proxy) {
